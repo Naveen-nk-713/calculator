@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Calculator</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b1020;
+        --panel: rgba(255, 255, 255, 0.08);
+        --panel-border: rgba(255, 255, 255, 0.14);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.65);
+        --btn: rgba(255, 255, 255, 0.08);
+        --btn-hover: rgba(255, 255, 255, 0.12);
+        --btn-active: rgba(255, 255, 255, 0.18);
+        --accent: #7c5cff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        background: radial-gradient(1000px 600px at 20% 10%, rgba(124, 92, 255, 0.22), transparent 60%),
+          radial-gradient(900px 700px at 90% 20%, rgba(0, 209, 255, 0.18), transparent 60%),
+          var(--bg);
+        color: var(--text);
+      }
+
+      .app {
+        min-height: 100%;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .calc {
+        width: min(380px, 92vw);
+        border-radius: 18px;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+        padding: 16px;
+      }
+
+      .displayWrap {
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 14px 12px;
+        margin-bottom: 12px;
+      }
+
+      .expr {
+        min-height: 18px;
+        font-size: 12px;
+        color: var(--muted);
+        text-align: right;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .display {
+        margin-top: 6px;
+        font-size: 34px;
+        line-height: 1.1;
+        font-weight: 650;
+        text-align: right;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .keys {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+
+      button.key {
+        appearance: none;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: var(--btn);
+        color: var(--text);
+        border-radius: 14px;
+        padding: 14px 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+        transition: background 120ms ease, transform 60ms ease;
+      }
+
+      button.key:hover {
+        background: var(--btn-hover);
+      }
+
+      button.key:active {
+        background: var(--btn-active);
+        transform: translateY(1px);
+      }
+
+      button.key.op {
+        border-color: rgba(124, 92, 255, 0.35);
+        background: rgba(124, 92, 255, 0.12);
+      }
+
+      button.key.op:hover {
+        background: rgba(124, 92, 255, 0.18);
+      }
+
+      button.key.danger {
+        border-color: rgba(255, 102, 102, 0.35);
+        background: rgba(255, 102, 102, 0.12);
+      }
+
+      button.key.equal {
+        background: linear-gradient(135deg, rgba(124, 92, 255, 0.9), rgba(0, 209, 255, 0.7));
+        border-color: rgba(255, 255, 255, 0.22);
+      }
+
+      button.key.equal:hover {
+        filter: brightness(1.05);
+      }
+
+      button.key.span2 {
+        grid-column: span 2;
+      }
+
+      .hint {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <main class="calc" aria-label="Calculator">
+        <div class="displayWrap">
+          <div id="expr" class="expr" aria-hidden="true"></div>
+          <div id="display" class="display" aria-live="polite">0</div>
+        </div>
+
+        <div class="keys" role="group" aria-label="Calculator keys">
+          <button class="key danger" data-action="clear" aria-label="Clear">AC</button>
+          <button class="key" data-action="backspace" aria-label="Backspace">⌫</button>
+          <button class="key op" data-action="operator" data-value="%" aria-label="Percent">%</button>
+          <button class="key op" data-action="operator" data-value="/" aria-label="Divide">÷</button>
+
+          <button class="key" data-action="digit" data-value="7">7</button>
+          <button class="key" data-action="digit" data-value="8">8</button>
+          <button class="key" data-action="digit" data-value="9">9</button>
+          <button class="key op" data-action="operator" data-value="*" aria-label="Multiply">×</button>
+
+          <button class="key" data-action="digit" data-value="4">4</button>
+          <button class="key" data-action="digit" data-value="5">5</button>
+          <button class="key" data-action="digit" data-value="6">6</button>
+          <button class="key op" data-action="operator" data-value="-" aria-label="Subtract">−</button>
+
+          <button class="key" data-action="digit" data-value="1">1</button>
+          <button class="key" data-action="digit" data-value="2">2</button>
+          <button class="key" data-action="digit" data-value="3">3</button>
+          <button class="key op" data-action="operator" data-value="+" aria-label="Add">+</button>
+
+          <button class="key span2" data-action="digit" data-value="0">0</button>
+          <button class="key" data-action="decimal" data-value=".">.</button>
+          <button class="key equal" data-action="equals" aria-label="Equals">=</button>
+        </div>
+
+        <div class="hint">Keyboard: 0-9, + - * /, Enter, Backspace, Esc</div>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
