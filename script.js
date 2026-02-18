@@ -10,7 +10,7 @@ function formatNumber(n) {
   return String(parseFloat(n.toFixed(10)));
 }
 
-//test
+//test 1
 let current = "0"; // string being edited
 let a = null; // number
 let op = null; // "+", "-", "*", "/", "%"
